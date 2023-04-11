@@ -1,0 +1,44 @@
+#packages to be imported
+
+import pandas as pd  #for loading and manipulating a dataset
+from sklearn.model_selection import train_test_split  #to split the dataset into train and test set
+from sklearn.preprocessing import StandardScaler  #to standardize the dataset
+from sklearn.tree import DecisionTreeClassifier  #to define by which method decision tree has to be implemented
+from sklearn.metrics import confusion_matrix  #to determine the performance of classification models 
+from sklearn.tree import export_graphviz  #to display the decision tree execution
+import graphviz
+
+#import the dataset "cars.csv"
+df = pd.read_csv('cars.csv')
+df.head()
+
+#since strings can't be standardized we are changing gender into binary form
+df['Gender'].replace({'Male':1, 'Female':0}, inplace=True)
+df.head(10)
+
+#finding target variable and features to classify 
+X = df[['Gender','AnnualSalary']]
+Y = df[['Purchased']]
+
+#splitting the dataset for training and testing
+X_train, X_test, Y_train, Y_test=train_test_split(X,Y,test_size = 0.5, random_state=0)
+print(X_train)
+
+#standardizing the dataset
+a = StandardScaler()
+X_train = a.fit_transform(X_train)
+X_test = a.transform(X_test)
+
+#training the model using train dataset
+clf = DecisionTreeClassifier(criterion = "gini",random_state=0)
+clf.fit(X_train,Y_train)
+
+#finding the predicted value for x_test dataset
+Y_pred =clf.predict(X_test)
+
+#determining the performance of the model
+cm = confusion_matrix(Y_test,Y_pred)
+cm
+
+#displaying decision tree
+graphviz.Source(export_graphviz(clf,feature_names = X.columns,filled = True))
